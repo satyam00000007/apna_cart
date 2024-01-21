@@ -1,40 +1,80 @@
-import useUpdatingClock from 'hooks/useUpdatingClock'
+import Navbar from './Navbar.js'
+import Footer from './Footer.js'
+import ProductList from './ProductList.js'
+import { useState } from 'react';
+import AddItem from './AddItem';
 
 export default function App() {
-  const {hour, minutes, seconds, amPm} = useUpdatingClock()
+  let products= [{
+                  name : 'Apple',
+                  price : 80000,
+                  quantity : 0,
+                  },
+                  {
+                    name : 'Samsung',
+                    price : 60000,
+                    quantity : 0,
+                  },{
+                    name : 'Realme',
+                    price : 10000,
+                    quantity : 0,
+                  }];
+
+  const [productList,setProductlist] = useState(products);
+  const [totalAmount,setTotalAmount] = useState(0);
+
+  const incrementQuantity = (index) =>{
+    let newProductList = [...productList];
+    let newtotalAmount = totalAmount; 
+    newProductList[index].quantity = newProductList[index].quantity + 1;
+    newtotalAmount += newProductList[index].price;
+    setTotalAmount(newtotalAmount); 
+    setProductlist(newProductList);
+  }
+
+  const decreaseQuantity = (index) =>{
+    let newProductList = [...productList]
+    let newtotalAmount = totalAmount; 
+    if(newProductList[index].quantity){
+      newProductList[index].quantity = newProductList[index].quantity - 1;
+      newtotalAmount -= newProductList[index].price;
+      setTotalAmount(newtotalAmount); 
+      setProductlist(newProductList);
+    }
+  }
+
+  const resetQuantity = () =>{
+    let newProductList = [...productList]
+    newProductList.map((products)=>{
+      products.quantity = 0;
+    })
+    setProductlist(newProductList);
+    setTotalAmount(0); 
+  }
+
+  const removeRow = (index) => {
+    let newProductList = [...productList]
+    let newtotalAmount = totalAmount;
+    newtotalAmount = newtotalAmount - (newProductList[index].quantity * newProductList[index].price);
+    setTotalAmount(newtotalAmount);
+    newProductList.splice(index,1);
+    setProductlist(newProductList)
+  }
+
+  const AddItems = (name,price)=>{
+    let newProductList = [...productList];
+    newProductList.push({name : name, price : price, quantity:0});
+    setProductlist(newProductList);
+  }
 
   return (
-    <div className="df flex-col vh-100">
-      <header className="pv24 bg-gold black-80 tc">
-        <h1 className="mt0 mb0">Create New App</h1>
-        <div>By The Qodesmith</div>
-      </header>
-
-      <section className="flex-grow-1 bg-black-80 fw4 white-80 tc pt24">
-        <div>
-          Your application starts in the{' '}
-          <code>
-            src/<span className="b white">entry.jsx</span>
-          </code>{' '}
-          file.
-        </div>
-
-        <div>
-          The component you're looking here at can be found in{' '}
-          <code>
-            src/components/<span className="b white">App.jsx</span>
-          </code>
-        </div>
-
-        <div>
-          Now go! Save the world with <span className="gold">JavaScript</span>!
-        </div>
-
-        <div className="pa16 f-1-5em">
-          {hour}:{minutes}:{seconds}
-          <span className="f-initial pl4">{amPm}</span>
-        </div>
-      </section>
-    </div>
+    <>
+      <Navbar/>
+      <div className="container mt-4">
+        <AddItem AddItems={AddItems}/>
+        <ProductList productList={productList} incrementQuantity={incrementQuantity} decreaseQuantity={decreaseQuantity} removeRow={removeRow}/>
+      </div>
+      <Footer totalAmount={totalAmount} resetQuantity={resetQuantity}/>
+    </>
   )
 }
